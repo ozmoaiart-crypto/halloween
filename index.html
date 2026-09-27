@@ -178,9 +178,16 @@ img{display:block}
 }
 
 /* プロフィールの部屋 */
+/* プロフィールの部屋は、カードを画面の真ん中に置きます
+   （左右の飾りはカードの後ろへ回して、文字が隠れないようにします） */
 .profile-room .wall{align-items:center;justify-content:center;
-  padding-left:max(var(--edge-l),24px);padding-right:max(var(--edge-r),24px);
-  transform:translateY(calc(var(--eye) - 50%))}
+  padding-left:16px;padding-right:16px;transform:none}
+.profile-room .side{z-index:1}
+.profile-room .card{
+  max-width:min(560px, calc(100vw - 32px));
+  max-height:calc(100% - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overflow-y:auto;overscroll-behavior:contain;
+}
 .card{
   max-width:min(560px,88vw);background:#FAF7F1;padding:clamp(26px,6vw,44px);
   box-shadow:0 18px 40px rgba(0,0,0,.5),0 3px 10px rgba(0,0,0,.3);
@@ -190,7 +197,7 @@ img{display:block}
   letter-spacing:.18em;text-indent:.18em;margin-bottom:6px}
 .card .role{font-size:10px;letter-spacing:.34em;text-indent:.34em;
   color:var(--ink-mute);margin-bottom:22px}
-.card .bio{font-size:13.5px;line-height:2.1;color:#3C444B;text-align:center;
+.card .bio{font-size:13.5px;line-height:2.05;color:#3C444B;text-align:left;
   white-space:pre-wrap;margin-bottom:26px}
 .card .links{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
 .card .links a{
@@ -387,7 +394,7 @@ const ROOMS = [
    ============================================================ */
 
 /* 合同展ロビーのURL（主催者が入れます。空のときはロビーボタンが出ません） */
-const LOBBY_URL = "";
+const LOBBY_URL = "https://lina-ai-works.github.io/halloween-mansion-2026/lobby.html";
 
 const WORKS_COUNT = 4;   /* 基本版は4点固定 */
 
@@ -692,42 +699,16 @@ const bgmBtn = $('#bgm');
 const audio = new Audio('music.mp3');
 audio.loop = true;
 audio.volume = 0.22;
-audio.preload = 'auto';
-
-function startBgm(){
-  if (!audio.paused) return;
-  audio.play().then(() => {
-    bgmBtn.classList.add('playing');
-    bgmBtn.setAttribute('aria-label','BGMを停止');
-  }).catch(() => {});
-}
-
-function initBgm(){
-  bgmBtn.classList.add('ready');
-  startBgm();
-  /* ブラウザの自動再生ブロック対策：画面タップ・クリック時に即座に再生 */
-  const unlock = () => {
-    startBgm();
-    window.removeEventListener('click', unlock, true);
-    window.removeEventListener('touchstart', unlock, true);
-    window.removeEventListener('keydown', unlock, true);
-  };
-  window.addEventListener('click', unlock, { capture: true, once: true });
-  window.addEventListener('touchstart', unlock, { capture: true, once: true });
-  window.addEventListener('keydown', unlock, { capture: true, once: true });
-}
-
+audio.preload = 'none';
 if (location.protocol === 'file:') {
   audio.preload = 'metadata';
-  audio.addEventListener('loadedmetadata', initBgm, { once:true });
+  audio.addEventListener('loadedmetadata', () => bgmBtn.classList.add('ready'), { once:true });
 } else {
   fetch('music.mp3', { method:'HEAD' })
-    .then(r => { if (r.ok) initBgm(); })
+    .then(r => { if (r.ok) bgmBtn.classList.add('ready'); })
     .catch(() => {});
 }
-
-bgmBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
+bgmBtn.addEventListener('click', () => {
   if (audio.paused){
     audio.play().then(() => {
       bgmBtn.classList.add('playing');
