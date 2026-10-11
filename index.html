@@ -37,21 +37,21 @@
   --ease:cubic-bezier(.65,.05,.36,1);
   --mincho:"Hiragino Mincho ProN","Yu Mincho","YuMincho","HGS明朝E",Georgia,serif;
   --gothic:"Hiragino Sans","Yu Gothic","YuGothic","Helvetica Neue",Arial,sans-serif;
-  --card:clamp(168px,44vw,320px);
+  --card-w:clamp(150px, 34vw, 260px);    /* 縦長用（9:16用）の幅 */
+  --card-w-wide:clamp(260px, 60vw, 460px); /* 横長用（16:9用）の幅 */
   --gap:clamp(44px,9vw,96px);
-  --edge:clamp(30px,13vw,150px);
+  --edge:clamp(40px,14vw,160px);
   --eye:40%;              /* 作品を吊るす高さ（目線） */
-  /* 絵の部屋の寸法（絵は 1122 × 1402） */
+  /* 絵の部屋の寸法 */
   --vh:1vh;
   --room-h:calc(var(--vh) * 100);
   --room-w:calc(var(--room-h) * .8003);
-  --side-x:min(0px, calc((100vw - var(--room-w)) / 2));  /* 画面が狭いときは外へ逃がす */
-  /* ただし飾りは、左右とも幅の 45% までしか隠さない（スマホでも月やかぼちゃが見えるように） */
+  --side-x:min(0px, calc((100vw - var(--room-w)) / 2));  
   --shift-l:max(var(--side-x), calc(var(--side-l) * -0.45));
   --shift-r:max(var(--side-x), calc(var(--side-r) * -0.45));
-  --side-l:calc(var(--room-h) * .2354);   /* 左の飾りの幅 */
-  --side-r:calc(var(--room-h) * .1726);   /* 右の飾りの幅 */
-  --edge-l:max(20px, calc(var(--side-l) + var(--shift-l) + 10px));
+  --side-l:calc(var(--room-h) * .2354);   
+  --side-r:calc(var(--room-h) * .1726);   
+  --edge-l:max(30px, calc(var(--side-l) + var(--shift-l) + 20px));
   --edge-r:max(20px, calc(var(--side-r) + var(--shift-r) + 10px));
 }
 @supports (height:1svh){ :root{ --vh:1svh; } }
@@ -93,7 +93,7 @@ img{display:block}
   background-position:right center;
   -webkit-mask-image:linear-gradient(270deg,#000 86%,transparent 100%);
           mask-image:linear-gradient(270deg,#000 86%,transparent 100%)}
-/* ランタンとかぼちゃの灯りを、入口やロビーと同じようにゆらす */
+/* ランタンとかぼちゃの灯り */
 .flame{position:absolute;border-radius:50%;mix-blend-mode:screen;
   background:radial-gradient(closest-side,rgba(255,176,86,.5),transparent);
   opacity:.4;animation:flicker 3.6s ease-in-out infinite}
@@ -111,9 +111,9 @@ img{display:block}
   transform:translateY(calc(var(--eye) - 50%));
 }
 
-/* 部屋名プレート */
+/* 部屋名プレート（1枚目の左手前、確実に視界に入る安全な位置に修正） */
 .plate{
-  position:absolute;left:var(--edge-l);top:calc(50% - var(--eye) + 64px + env(safe-area-inset-top));z-index:6;
+  position:absolute;left:var(--edge-l);top:calc(50% - var(--eye) + 20px + env(safe-area-inset-top));z-index:6;
   padding:9px 17px;background:linear-gradient(180deg,#A38656,var(--brass));
   border:1px solid rgba(255,255,255,.2);border-radius:1px;
   box-shadow:0 4px 12px rgba(0,0,0,.45);
@@ -123,8 +123,11 @@ img{display:block}
 .plate small{display:block;margin-top:3px;font-size:9px;letter-spacing:.2em;
   text-indent:.2em;opacity:.72}
 
-/* 作品 */
-.art{position:relative;flex:0 0 var(--card);width:var(--card);cursor:pointer}
+/* 作品（デフォルトは縦長9:16サイズ） */
+.art{position:relative;flex:0 0 var(--card-w);width:var(--card-w);cursor:pointer}
+/* 16:9横長額縁にするクラス（5番目に適用） */
+.art.is-wide{flex:0 0 var(--card-w-wide);width:var(--card-w-wide)}
+
 .art.empty{cursor:default}
 /* 作品の上から当たるランプの光 */
 .art::before{
@@ -133,7 +136,7 @@ img{display:block}
   background:radial-gradient(50% 50% at 50% 40%,var(--lamp),transparent 72%);
 }
 .art .frame{
-  position:relative;background:var(--mat);padding:clamp(7px,1.8vw,11px);
+  position:relative;background:var(--mat);padding:clamp(4px, 1vw, 6px);
   box-shadow:0 1px 0 rgba(255,255,255,.5) inset,
              0 16px 30px var(--shadow),
              0 3px 8px var(--shadow-sm);
@@ -141,22 +144,40 @@ img{display:block}
 }
 .art:not(.empty):hover .frame{transform:translateY(-4px);
   box-shadow:0 22px 38px var(--shadow),0 4px 10px var(--shadow-sm)}
-.art img,.art video{width:100%;height:auto;max-height:calc(var(--vh) * 40);object-fit:contain;background:#E9E4DA;display:block}
+.art img,.art video{
+  width:100%;
+  height:auto;
+  display:block;
+  background:#E9E4DA;
+}
+/* 縦長動画（9:16）のアスペクト比 */
+.art:not(.is-wide) img,.art:not(.is-wide) video{
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+}
+/* 横長動画（16:9）のアスペクト比 */
+.art.is-wide img,.art.is-wide video{
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
 /* 画像がまだ無いとき */
 .ghost{
-  width:100%;aspect-ratio:3/4;display:flex;flex-direction:column;
+  width:100%;aspect-ratio:9/16;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:8px;
   background:repeating-linear-gradient(45deg,#ECE7DD 0 9px,#E4DED3 9px 18px);
-  max-height:calc(var(--vh) * 40);
   border:1px dashed #B3AA9A;color:#7A7266;text-align:center;padding:12px;
 }
+.art.is-wide .ghost{aspect-ratio:16/9;}
 .ghost b{font-family:var(--gothic);font-size:12px;letter-spacing:.08em;color:#5C554A}
 .ghost span{font-size:10.5px;line-height:1.6}
+
 /* 作品の下の小さなラベル */
 .tag{margin-top:14px;font-size:10px;letter-spacing:.13em;color:var(--on-wall-mute);
   text-align:center;line-height:1.6}
 .tag b{display:block;font-weight:400;font-family:var(--mincho);font-size:12px;
   letter-spacing:.1em;color:var(--on-wall);margin-bottom:2px}
+
 /* 壁の終わりの出口 */
 .exit{
   flex:0 0 auto;align-self:center;display:flex;flex-direction:column;
@@ -178,8 +199,6 @@ img{display:block}
 }
 
 /* プロフィールの部屋 */
-/* プロフィールの部屋は、カードを画面の真ん中に置きます
-   （左右の飾りはカードの後ろへ回して、文字が隠れないようにします） */
 .profile-room .wall{align-items:center;justify-content:center;
   padding-left:16px;padding-right:16px;transform:none}
 .profile-room .side{z-index:1}
@@ -211,7 +230,6 @@ img{display:block}
   font-family:var(--mincho);font-size:12.5px;letter-spacing:.14em;
   line-height:2;color:#5A6168;white-space:pre-wrap;
 }
-/* ロビーへ戻る／常設ギャラリーへ */
 .card .ways{
   margin-top:clamp(20px,4vw,28px);
   display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
@@ -287,19 +305,18 @@ img{display:block}
 #lbclose{position:absolute;right:12px;top:calc(12px + env(safe-area-inset-top));
   width:42px;height:42px;color:#E4DDD2;font-size:20px}
 
-/* ---------- 作品を保存しにくくする ---------- */
+/* ---------- 保存抑止 ---------- */
 .art img,.art video,#lightbox img,#lightbox video,.card img{
   -webkit-user-select:none;user-select:none;
   -webkit-user-drag:none;user-drag:none;
-  -webkit-touch-callout:none;      /* iPhoneの長押しメニューを出さない */
+  -webkit-touch-callout:none;
   pointer-events:auto;
 }
-/* 作品の上に透明な膜をかぶせ、画像を直接つかめないようにする */
 .art .frame::after{
   content:"";position:absolute;inset:0;z-index:2;
 }
 
-/* ---------- 到着したときの案内 ---------- */
+/* ---------- 案内表示 ---------- */
 #hint{
   position:fixed;left:50%;top:50%;translate:-50% -50%;z-index:25;
   display:flex;flex-direction:column;align-items:center;gap:10px;
@@ -316,7 +333,7 @@ img{display:block}
 }
 #hint .n{
   font-family:var(--mincho);font-size:clamp(11px,3vw,13px);
-  letter-spacing:.3em;text-indent:.3em;color:var(--on-wall-mute);
+  letter-spacing:.3em;text-indent:.3em;color:#B3A99E;
   padding-bottom:14px;margin-bottom:4px;
   border-bottom:1px solid rgba(233,226,214,.16);
 }
@@ -379,13 +396,15 @@ const CONFIG = {
   gallery:  ""   // いつもの個展のURL
 };
 
-/* 部屋の名前と、作品のタイトル（作品は4点です） */
+/* 部屋の名前と、作品のタイトル
+   (1, 2, 3, 4枚目が9:16縦長、5枚目のみ16:9横長) */
 const ROOMS = [
   { name:"HALLOWEEN ROOM", jp:"ハロウィンの間", works:[
-      { file:"art01.png", title:"Halloween Party", caption:"お菓子くれなきゃ悪戯しちゃうぞ！" },
-      { file:"art02.png", title:"Halloween Night", caption:"透ける骨と甘い夜。" },
-      { file:"art03.png", title:"Eternal Dance", caption:"永遠を誓うふたり。" },
-      { file:"art04.png", title:"Halloween Nightmare", caption:"秘密のハロウィンパーティー。" }
+      { file:"https://res.cloudinary.com/diihr5mn0/video/upload/001_ehmnia.mp4", title:"Neon Night & Sweet Spooky", caption:"ハロウィンパーティー、最高に妖しく刺激的な幕開けを。" },
+      { file:"https://res.cloudinary.com/diihr5mn0/video/upload/002_groa6v.mp4", title:"Midnight Sweetness", caption:"お菓子をくれなきゃ、悪戯しちゃうぞ？" },
+      { file:"https://res.cloudinary.com/diihr5mn0/video/upload/003_att1vm.mp4", title:"Pink & Blue Nightmare", caption:"甘い誘惑と鎖の音。醒めない悪夢へようこそ。" },
+      { file:"https://res.cloudinary.com/diihr5mn0/video/upload/004_yfzro0.mp4", title:"Eternal Dance", caption:"骨になっても離さない。永遠を誓うロマンティックな夜。" },
+      { file:"https://res.cloudinary.com/diihr5mn0/video/upload/005_gb3dfh.mp4", title:"Midnight Magic", caption:"骨の体温と甘い吐息。永遠に続くラブロマンス。", wide:true }
   ]}
 ];
 
@@ -393,13 +412,10 @@ const ROOMS = [
    ここから下は触らなくて大丈夫です
    ============================================================ */
 
-/* 合同展ロビーのURL（主催者が入れます。空のときはロビーボタンが出ません） */
 const LOBBY_URL = "https://lina-ai-works.github.io/halloween-mansion-2026/lobby.html";
 
-const WORKS_COUNT = 4;   /* 基本版は4点固定 */
+const WORKS_COUNT = 5;
 
-/* ---- 壁の色（6色）@@WALLS_BEGIN@@ ---- */
-/* 壁の絵は、りなさんのフォルダから読み込みます */
 const WALL_BASE = "https://lina-ai-works.github.io/lx7k2m9/walls/";
 
 const DARK = {
@@ -423,18 +439,7 @@ const WALLS = {
   ivory:  { label:"アイボリー",    file:"ivory",   ink:LIGHT }
 };
 
-/* ---- @@WALLS_END@@ ---- */
-
-/* 灯りの位置（絵の中の割合） */
-const FLAMES_L = [
-  [25.8,12.8,34,8],[21,68.5,32,7],[5.5,72,24,5],[51.5,74.9,24,5],[83,82.7,26,6],[18,90.6,34,8]
-];
-const FLAMES_R = [
-  [68,12.5,44,7],[80.6,72.8,30,4.5],[90.9,75.6,28,4],[10.3,82.7,34,5],[49.6,90.2,48,8]
-];
-
-/* 選んだ壁をあてる（名前が違っていたら紫） */
-const WALL = WALLS.purple;   /* 基本版の壁は紫で固定です */
+const WALL = WALLS.purple;
 (function(){
   const r = document.documentElement.style;
   Object.keys(WALL.ink).forEach(k => r.setProperty('--' + k, WALL.ink[k]));
@@ -443,12 +448,12 @@ const WALL = WALLS.purple;   /* 基本版の壁は紫で固定です */
   r.setProperty('--mid-url',   'url("' + WALL_BASE + WALL.file + '-mid.jpg")');
 })();
 
-/* 部屋の絵（真ん中の壁・左右の飾り・灯り）を組み立てます */
 function dressRoom(sec){
   const mid = document.createElement('div');
   mid.className = 'bg-mid';
   sec.appendChild(mid);
-  [['l', FLAMES_L], ['r', FLAMES_R]].forEach(([side, flames]) => {
+  [['l', [[25.8,12.8,34,8],[21,68.5,32,7],[5.5,72,24,5],[51.5,74.9,24,5],[83,82.7,26,6],[18,90.6,34,8]]],
+   ['r', [[68,12.5,44,7],[80.6,72.8,30,4.5],[90.9,75.6,28,4],[10.3,82.7,34,5],[49.6,90.2,48,8]]]].forEach(([side, flames]) => {
     const el = document.createElement('div');
     el.className = 'side ' + side;
     flames.forEach((f, i) => {
@@ -466,12 +471,10 @@ const $ = s => document.querySelector(s);
 const roomsEl = $('#rooms');
 let index = 0;
 
-/* ファイル名が .mp4 / .webm なら動画として扱います */
-const isMovie = f => /\.(mp4|webm|mov)$/i.test(f);
+const isMovie = f => /\.(mp4|webm|mov)(\?.*)?$/i.test(f) || f.includes('/video/upload/');
 
 document.title = CONFIG.title + ' ／ ' + CONFIG.artist;
 
-/* 展示室（1部屋・4点） */
 const room = ROOMS[0] || { name:"HALLOWEEN ROOM", jp:"", works:[] };
 const works = [];
 for (let i = 0; i < WORKS_COUNT; i++){
@@ -544,16 +547,14 @@ roomsEl.appendChild(psec);
 
 const TOTAL = 2;
 
-/* 上のロビーボタン */
 if (LOBBY_URL){
   $('#toLobby').href = LOBBY_URL;
   $('#toLobby').hidden = false;
 }
 
-/* 作品パネル */
 function makeArt(w){
   const el = document.createElement('div');
-  el.className = 'art';
+  el.className = 'art' + (w.wide ? ' is-wide' : '');
   el.setAttribute('role','button');
   el.tabIndex = 0;
 
@@ -564,7 +565,7 @@ function makeArt(w){
 
   const media = document.createElement(movie ? 'video' : 'img');
   if (movie){
-    media.muted = true;          /* 音を消さないと自動再生できません */
+    media.muted = true;
     media.loop = true;
     media.autoplay = true;
     media.playsInline = true;
@@ -575,21 +576,19 @@ function makeArt(w){
     media.loading = 'lazy';
   }
 
-  /* ファイルが無いときは押しても開かないようにする */
   media.onerror = () => {
     hasMedia = false;
     el.classList.add('empty');
     el.removeAttribute('role');
     el.tabIndex = -1;
     frame.innerHTML =
-      '<div class="ghost"><b>' + esc(w.file) + '</b>' +
-      '<span>この名前でファイルを置くと<br>ここに表示されます</span></div>';
+      '<div class="ghost"><b>動画の読み込みエラー</b>' +
+      '<span>リンクをご確認ください</span></div>';
   };
   media.src = w.file;
   frame.appendChild(media);
   el.appendChild(frame);
 
-  /* 画面に入っていない動画は止めておく（スマホを軽くするため） */
   if (movie && 'IntersectionObserver' in window){
     new IntersectionObserver(es => es.forEach(e => {
       if (e.isIntersecting) media.play().catch(() => {});
@@ -612,7 +611,6 @@ function makeArt(w){
   return el;
 }
 
-/* 部屋の移動 */
 const dots = $('#dots');
 for (let i = 0; i < TOTAL; i++){
   const d = document.createElement('i');
@@ -630,13 +628,11 @@ $('#prev').addEventListener('click', () => go(index - 1));
 $('#next').addEventListener('click', () => go(index + 1));
 go(0);
 
-/* 到着：扉なしで、暗いところからそのまま部屋が見えてきます */
 function arrive(){
   setTimeout(() => $('#fade').classList.add('off'), 80);
   showHint();
 }
 
-/* 到着したときだけ、展示名と見方をそっと案内します */
 function showHint(){
   const hint = $('#hint');
   if (!hint) return;
@@ -654,7 +650,6 @@ function showHint(){
 }
 arrive();
 
-/* 拡大表示 */
 const lb = $('#lightbox');
 function openLightbox(w){
   const movie = isMovie(w.file);
@@ -662,7 +657,7 @@ function openLightbox(w){
   const m = document.createElement(movie ? 'video' : 'img');
   m.id = 'lbimg';
   if (movie){
-    m.controls = true;           /* 拡大したときだけ音を出せます */
+    m.controls = true;
     m.loop = true;
     m.autoplay = true;
     m.playsInline = true;
@@ -684,7 +679,6 @@ function closeLightbox(){
 $('#lbclose').addEventListener('click', closeLightbox);
 lb.addEventListener('click', e => { if (e.target === lb) closeLightbox(); });
 
-/* キーボード */
 document.addEventListener('keydown', e => {
   if (lb.classList.contains('on')){
     if (e.key === 'Escape') closeLightbox();
@@ -694,25 +688,39 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft')  go(index - 1);
 });
 
-/* BGM（music.mp3 がある人だけボタンが出ます） */
 const bgmBtn = $('#bgm');
 const audio = new Audio('music.mp3');
 audio.loop = true;
 audio.volume = 0.22;
-audio.preload = 'none';
-if (location.protocol === 'file:') {
-  audio.preload = 'metadata';
-  audio.addEventListener('loadedmetadata', () => bgmBtn.classList.add('ready'), { once:true });
-} else {
-  fetch('music.mp3', { method:'HEAD' })
-    .then(r => { if (r.ok) bgmBtn.classList.add('ready'); })
-    .catch(() => {});
+audio.preload = 'auto';
+
+bgmBtn.classList.add('ready');
+
+// 初めて画面のどこかをタッチまたはクリックした瞬間に自動でBGMを再生する設定
+function startBgmOnFirstInteraction() {
+  if (audio.paused) {
+    audio.play().then(() => {
+      bgmBtn.classList.add('playing');
+      bgmBtn.setAttribute('aria-label','BGMを停止');
+      removeInteractionListeners();
+    }).catch(() => {});
+  }
 }
+
+function removeInteractionListeners() {
+  window.removeEventListener('pointerdown', startBgmOnFirstInteraction);
+  window.removeEventListener('keydown', startBgmOnFirstInteraction);
+}
+
+window.addEventListener('pointerdown', startBgmOnFirstInteraction, { once:true });
+window.addEventListener('keydown', startBgmOnFirstInteraction, { once:true });
+
 bgmBtn.addEventListener('click', () => {
   if (audio.paused){
     audio.play().then(() => {
       bgmBtn.classList.add('playing');
       bgmBtn.setAttribute('aria-label','BGMを停止');
+      removeInteractionListeners();
     }).catch(() => {});
   } else {
     audio.pause();
@@ -721,8 +729,6 @@ bgmBtn.addEventListener('click', () => {
   }
 });
 
-/* 右クリック／ドラッグでの保存を抑止します
-   （スクリーンショットは防げません。画像は軽めのものを推奨） */
 document.addEventListener('contextmenu', e => {
   if (e.target.closest('.art, #lightbox, .card')) e.preventDefault();
 });
