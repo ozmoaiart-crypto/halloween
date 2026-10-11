@@ -567,9 +567,9 @@ function makeArt(w){
   if (movie){
     media.muted = true;
     media.loop = true;
-    media.autoplay = true;
     media.playsInline = true;
     media.setAttribute('playsinline','');
+    // ① 対策：metadataのみ読み込み、動画全体を勝手に一斉ダウンロードさせない
     media.preload = 'metadata';
   } else {
     media.alt = w.title || '';
@@ -589,10 +589,14 @@ function makeArt(w){
   frame.appendChild(media);
   el.appendChild(frame);
 
+  // ③ 対策：画面内（ビューポート）に入ってきた動画だけを再生し、見えなくなったら一時停止して負荷を軽減
   if (movie && 'IntersectionObserver' in window){
     new IntersectionObserver(es => es.forEach(e => {
-      if (e.isIntersecting) media.play().catch(() => {});
-      else media.pause();
+      if (e.isIntersecting) {
+        media.play().catch(() => {});
+      } else {
+        media.pause();
+      }
     }), { threshold:0.1 }).observe(el);
   }
 
@@ -696,7 +700,6 @@ audio.preload = 'auto';
 
 bgmBtn.classList.add('ready');
 
-// 初めて画面のどこかをタッチまたはクリックした瞬間に自動でBGMを再生する設定
 function startBgmOnFirstInteraction() {
   if (audio.paused) {
     audio.play().then(() => {
