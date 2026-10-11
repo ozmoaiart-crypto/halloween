@@ -119,6 +119,7 @@ img{display:block}
   box-shadow:0 4px 12px rgba(0,0,0,.45);
   font-family:var(--mincho);font-size:10px;letter-spacing:.36em;text-indent:.36em;
   color:#231A0E;white-space:nowrap;
+  pointer-events: none; /* プレートがタップ判定やレイアウトの邪魔をしないようにする */
 }
 .plate small{display:block;margin-top:3px;font-size:9px;letter-spacing:.2em;
   text-indent:.2em;opacity:.72}
@@ -146,18 +147,19 @@ img{display:block}
   box-shadow:0 22px 38px var(--shadow),0 4px 10px var(--shadow-sm)}
 .art img,.art video{
   width:100%;
-  height:auto;
   display:block;
   background:#E9E4DA;
 }
-/* 縦長動画（9:16）のアスペクト比 */
+/* 縦長（9:16）の比率 */
 .art:not(.is-wide) img,.art:not(.is-wide) video{
   aspect-ratio: 9 / 16;
+  height: auto;
   object-fit: cover;
 }
-/* 横長動画（16:9）のアスペクト比 */
+/* 横長（16:9）の比率 */
 .art.is-wide img,.art.is-wide video{
   aspect-ratio: 16 / 9;
+  height: auto;
   object-fit: cover;
 }
 
@@ -569,7 +571,6 @@ function makeArt(w){
     media.loop = true;
     media.playsInline = true;
     media.setAttribute('playsinline','');
-    // ① 対策：metadataのみ読み込み、動画全体を勝手に一斉ダウンロードさせない
     media.preload = 'metadata';
   } else {
     media.alt = w.title || '';
@@ -589,7 +590,6 @@ function makeArt(w){
   frame.appendChild(media);
   el.appendChild(frame);
 
-  // ③ 対策：画面内（ビューポート）に入ってきた動画だけを再生し、見えなくなったら一時停止して負荷を軽減
   if (movie && 'IntersectionObserver' in window){
     new IntersectionObserver(es => es.forEach(e => {
       if (e.isIntersecting) {
